@@ -8,19 +8,20 @@ const useAuth = () => {
 	const config = useRuntimeConfig();
 	const AUTH_DOMAIN = config.public.auth0.AUTH_DOMAIN; // DOMAUN from https://auth0.com/ application
 	const AUTH_CLIENTID = config.public.auth0.AUTH_CLIENTID; // CLIENTID from https://auth0.com/ application
-	if (!auth.value) {
-		if (!AUTH_DOMAIN || !AUTH_CLIENTID) {
-			console.error(
-				"runtimeConfig.public.auth0.AUTH_DOMAIN & runtimeConfig.public.auth0.AUTH_DOMAIN are required to be set in nuxt.config, for useAuth to work"
-			);
-		} else {
-			try {
-				auth.value = new auth0.WebAuth({
-					domain: AUTH_DOMAIN,
-					clientID: AUTH_CLIENTID,
-					scope: "email profile openid",
-				});
-			} catch (error) {}
+
+	if (!AUTH_DOMAIN || !AUTH_CLIENTID) {
+		console.error(
+			"runtimeConfig.public.auth0.AUTH_DOMAIN & runtimeConfig.public.auth0.AUTH_DOMAIN are required to be set in nuxt.config, for useAuth to work"
+		);
+	} else if (!auth.value) {
+		try {
+			auth.value = new auth0.WebAuth({
+				domain: AUTH_DOMAIN,
+				clientID: AUTH_CLIENTID,
+				scope: "email profile openid",
+			});
+		} catch (error) {
+			console.error(error);
 		}
 	}
 
@@ -29,10 +30,8 @@ const useAuth = () => {
 	 * Logout user
 	 */
 	const logout = () => {
-		if (!auth.value)
-			return console.log("auth0 is not setup correctly - logout failed");
 		Cookies.remove("auth._token.auth0");
-		auth.value.logout({});
+		auth.value!.logout({});
 		userData.value = null;
 	};
 
@@ -40,11 +39,7 @@ const useAuth = () => {
 	 * Set userData from token recieved in login functions
 	 */
 	const setUserDataFromToken = (token: string) => {
-		if (!auth.value)
-			return console.log(
-				"auth0 is not setup correctly - setUserDataFromToken failed"
-			);
-		auth.value.client.userInfo(token, (error, user) => {
+		auth.value!.client.userInfo(token, (error, user) => {
 			if (error) {
 				console.error(error);
 			}
@@ -72,11 +67,7 @@ const useAuth = () => {
 		redirectUri: string;
 	}) => {
 		return new Promise((resolve, reject) => {
-			if (!auth.value)
-				return console.log(
-					"auth0 is not setup correctly - loginGoogle failed"
-				);
-			auth.value.popup.authorize(
+			auth.value!.popup.authorize(
 				{
 					owp: true,
 					connection: "google-oauth2",
@@ -87,8 +78,9 @@ const useAuth = () => {
 					redirectUri,
 				},
 				(error, authResult) => {
-					if (authResult.accessToken && auth.value) {
-						auth.value.client.userInfo(
+
+					if (authResult.accessToken) {
+						auth.value!.client.userInfo(
 							authResult.accessToken,
 							(error, result) => {
 								if (error) {
@@ -117,11 +109,7 @@ const useAuth = () => {
 
 	const forgotPassword = (forgotPasswordMail: string) => {
 		return new Promise((resolve, reject) => {
-			if (!auth.value)
-				return console.log(
-					"auth0 is not setup correctly - forgotPassword failed"
-				);
-			auth.value.changePassword(
+			auth.value!.changePassword(
 				{
 					email: forgotPasswordMail,
 					connection: "Username-Password-Authentication",
@@ -148,11 +136,7 @@ const useAuth = () => {
 		redirectUri: string
 	) => {
 		return new Promise((resolve, reject) => {
-			if (!auth.value)
-				return console.log(
-					"auth0 is not setup correctly - loginLocal failed"
-				);
-			auth.value.login(
+			auth.value!.login(
 				{
 					email: loginEmail,
 					password: loginPassword,
@@ -182,11 +166,7 @@ const useAuth = () => {
 		registerPassword: string
 	) => {
 		return new Promise((resolve, reject) => {
-			if (!auth.value)
-				return console.log(
-					"auth0 is not setup correctly - register failed"
-				);
-			auth.value.signup(
+			auth.value!.signup(
 				{
 					email: registerEmail,
 					password: registerPassword,
@@ -216,11 +196,7 @@ const useAuth = () => {
 	 * }
 	 */
 	const processHash = (hash: string) => {
-		if (!auth.value)
-			return console.log(
-				"auth0 is not setup correctly - processHash failed"
-			);
-		auth.value.parseHash(
+		auth.value!.parseHash(
 			{ hash, nonce: "nonce", state: "state" },
 			(error, result) => {
 				if (error) {
