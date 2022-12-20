@@ -15,10 +15,6 @@ const password = ref("");
 const route = useRoute();
 
 onMounted(() => {
-	const forgot = () => {
-		forgotPassword(mail);
-	};
-
 	//  On local login user is redirected to same page with hash in url
 	//  Check hash and login
 	const hash = route.hash;
@@ -46,7 +42,7 @@ onMounted(() => {
 			<input type="password" v-model="password" aria-label="password"
 		/></label>
 
-		<button @click="forgot">forgotPassword</button><br />
+		<button @click="forgotPassword(mail)">forgotPassword</button><br />
 
 		<button @click="loginLocal(mail, password, 'http://localhost:3000/')">
 			login</button

@@ -8,11 +8,8 @@ const useAuth = () => {
 	const config = useRuntimeConfig();
 	const AUTH_DOMAIN = config.public.auth0.AUTH_DOMAIN; // DOMAUN from https://auth0.com/ application
 	const AUTH_CLIENTID = config.public.auth0.AUTH_CLIENTID; // CLIENTID from https://auth0.com/ application
-
-	const isLoggedIn = computed(() => !!userData.value);
-
 	if (!auth.value) {
-		if (!AUTH_DOMAIN || AUTH_CLIENTID) {
+		if (!AUTH_DOMAIN || !AUTH_CLIENTID) {
 			console.error(
 				"runtimeConfig.public.auth0.AUTH_DOMAIN & runtimeConfig.public.auth0.AUTH_DOMAIN are required to be set in nuxt.config, for useAuth to work"
 			);
@@ -27,6 +24,7 @@ const useAuth = () => {
 		}
 	}
 
+	const isLoggedIn = computed(() => !!userData.value);
 	/**
 	 * Logout user
 	 */
@@ -46,7 +44,6 @@ const useAuth = () => {
 			return console.log(
 				"auth0 is not setup correctly - setUserDataFromToken failed"
 			);
-
 		auth.value.client.userInfo(token, (error, user) => {
 			if (error) {
 				console.error(error);
@@ -67,13 +64,13 @@ const useAuth = () => {
 	/**
 	 * LOGIN WITH GOOGLE
 	 */
-	function loginGoogle({
+	const loginGoogle = ({
 		domain,
 		redirectUri,
 	}: {
 		domain: string;
 		redirectUri: string;
-	}) {
+	}) => {
 		return new Promise((resolve, reject) => {
 			if (!auth.value)
 				return console.log(
@@ -89,12 +86,8 @@ const useAuth = () => {
 					domain,
 					redirectUri,
 				},
-				function (error, authResult) {
-					if (authResult.accessToken) {
-						if (!auth.value)
-							return console.log(
-								"auth0 is not setup correctly - loginGoogle failed"
-							);
+				(error, authResult) => {
+					if (authResult.accessToken && auth.value) {
 						auth.value.client.userInfo(
 							authResult.accessToken,
 							(error, result) => {
@@ -116,13 +109,13 @@ const useAuth = () => {
 				}
 			);
 		});
-	}
+	};
 
 	/**
 	 * SEND RESET PASSWORD MAIL
 	 */
 
-	function forgotPassword(forgotPasswordMail: string) {
+	const forgotPassword = (forgotPasswordMail: string) => {
 		return new Promise((resolve, reject) => {
 			if (!auth.value)
 				return console.log(
@@ -133,7 +126,7 @@ const useAuth = () => {
 					email: forgotPasswordMail,
 					connection: "Username-Password-Authentication",
 				},
-				function (error, result) {
+				(error, result) => {
 					if (error) {
 						reject(error);
 					}
@@ -143,17 +136,17 @@ const useAuth = () => {
 				}
 			);
 		});
-	}
+	};
 
 	/**
 	 * LOGIN WITH MAIL AND PASSWORD
 	 * N.B. On redirect page -> use processHash function to login user from the return url hash
 	 */
-	function loginLocal(
+	const loginLocal = (
 		loginEmail: string,
 		loginPassword: string,
 		redirectUri: string
-	) {
+	) => {
 		return new Promise((resolve, reject) => {
 			if (!auth.value)
 				return console.log(
@@ -169,7 +162,7 @@ const useAuth = () => {
 					nonce: "nonce",
 					state: "state",
 				},
-				function (error, result) {
+				(error, result) => {
 					if (error) {
 						reject(error);
 					}
@@ -179,12 +172,15 @@ const useAuth = () => {
 				}
 			);
 		});
-	}
+	};
 
 	/**
 	 * REGISETR A USER
 	 */
-	async function register(registerEmail: string, registerPassword: string) {
+	const register = async (
+		registerEmail: string,
+		registerPassword: string
+	) => {
 		return new Promise((resolve, reject) => {
 			if (!auth.value)
 				return console.log(
@@ -196,7 +192,7 @@ const useAuth = () => {
 					password: registerPassword,
 					connection: "Username-Password-Authentication",
 				},
-				async function (error, result) {
+				async (error, result) => {
 					if (error) {
 						reject(error);
 					}
@@ -206,7 +202,7 @@ const useAuth = () => {
 				}
 			);
 		});
-	}
+	};
 
 	// GET ACCESS TOKEN FROM HASH AFTER LOGIN REDIRCET
 	/**
