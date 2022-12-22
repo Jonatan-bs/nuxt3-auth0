@@ -1,42 +1,5 @@
-# Nuxt 3 Minimal Starter
+# AUTH0 Setup for NUXT3 
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
-
-## Setup
-
-Make sure to install the dependencies:
-
-```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install --shamefully-hoist
-```
-
-## Development Server
-
-Start the development server on http://localhost:3000
-
-```bash
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+1. Create an application in https://auth0.com/
+2. In the application settings, find the domain and clientId and set the following properties in nuxt.config: runtimeConfig.public.auth0.AUTH_DOMAIN & runtimeConfig.public.auth0.AUTH_DOMAIN
+3. Copy the useAuth composable and use it as it's used in app.vue
